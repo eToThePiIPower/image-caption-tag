@@ -2,7 +2,8 @@ require 'octopress-image-caption-tag/version'
 require 'liquid'
 
 # Title: Simple Image tag for Jekyll
-# Authors: Brandon Mathis http://brandonmathis.com
+# Authors: Charles Beynon https://eulerpi.io
+#          Brandon Mathis http://brandonmathis.com
 #          Felix Schäfer, Frederic Hemberger
 #
 
