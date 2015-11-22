@@ -3,3 +3,15 @@
 {% imgcap {{ site.images_dir }}/ninja.png "Ninja Attack!" %}
 {% imgcap left http://site.com/images/ninja.png "Ninja in the shadows" %}
 {% imgcap http://site.com/images/ninja.png 150 150 "Ninja in the shadows" "Hidden Ninja" %}
+
+{% imgcaption {{ site.images_dir }}/ninja.png "Ninja Attack!" %}
+**Secret** ninja has *entered* the game.
+{% endimgcaption %}
+
+{% imgcaption left https://site.com/images/ninja.png "Ninja in the shadows" %}
+**Secret** ninja has *entered* the game.
+{% endimgcaption %}
+
+{% imgcaption http://site.com/images/ninja.png 150 150 "Ninja in the shadows" "Hidden Ninja" %}
+**Secret** ninja has *entered* the game.
+{% endimgcaption %}
