@@ -10,49 +10,7 @@ require 'liquid'
 module Octopress
   module Tags
     module ImageCaptionTag
-      class Tag < Liquid::Tag
-        @img = nil
-        @title = nil
-        @class = ''
-        @width = ''
-        @height = ''
-
-        def initialize(tag_name, markup, tokens)
-          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?\s+\d+%?)?(?<title>\s+.+)?} =~ markup
-            @class = classname || 'center'
-            @img = "#{protocol}#{url}"
-            @title = title.strip if title
-            parse_sizes(sizes)
-            parse_title(@title)
-          end
-          super
-        end
-
-        def render(context)
-          super
-          if @img && @width[-1] == '%' # Relative width, so width goes on outer span
-            <<-EOS.gsub(/^ {12}/, '') # gsubm is to pretty up source by indenting
-            <figure class='caption-wrapper #{@class.rstrip}' style='width:#{@width};'>
-              <a class='image-popup' href='#{@img}'>
-                <img class='caption' src='#{@img}' width='100%' height='100%' title='#{@title}' alt='#{@alt}'>
-              </a>
-              <figurecaption class='caption-text'>#{@title}</figurecaption>
-            </figure>
-            EOS
-          elsif @img # Absolute width, so width goes on the img tag and text span gets sytle-width:@width-15;
-            <<-EOS.gsub(/^ {12}/, '') # gsubm is to pretty up source by indenting
-            <figure class='caption-wrapper #{@class.rstrip}'>
-              <a class='image-popup' href='#{@img}'>
-                <img class='caption' src='#{@img}' width='#{@width}px' height='#{@height}px' title='#{@title}' alt='#{@alt}'>
-              </a>
-              <figurecaption class='caption-text' style='width:#{@width.to_i - 10}px;'>#{@title}</figurecaption>
-            </figure>
-            EOS
-          else
-            'Error processing input, expected syntax: {% imgcap [class name(s)] /url/to/image [width height] [title [alt]] %}'
-          end
-        end
-
+      module ImageCaptionFunctions
         def parse_sizes(raw_size)
           if /\s*(?<w>\d+%?)\s+(?<h>\d+%?)/ =~ raw_size
             @width = w
@@ -74,9 +32,68 @@ module Octopress
             @alt = titlealt
           end
         end
+
+        def absolute_sized_figure
+          <<-EOS.gsub(/^ {10}/, '') # gsubm is to pretty up source by indenting
+          <figure class='caption-wrapper #{@class.rstrip}'>
+            <a class='image-popup' href='#{@img}'>
+              <img class='caption' src='#{@img}' width='#{@width}' height='#{@height}' title='#{@title}' alt='#{@alt}'>
+            </a>
+            <figcaption class='caption-text' style='width:#{@width.to_i - 10}px;'>
+              #{@caption}
+            </figcaption>
+          </figure>
+          EOS
+        end
+
+        def relative_sized_figure
+          <<-EOS.gsub(/^ {10}/, '') # gsubm is to pretty up source by indenting
+          <figure class='caption-wrapper #{@class.rstrip}' style='width:#{@width};'>
+            <a class='image-popup' href='#{@img}'>
+              <img class='caption' src='#{@img}' width='100%' height='100%' title='#{@title}' alt='#{@alt}'>
+            </a>
+            <figcaption class='caption-text'>
+              #{@caption}
+            </figcaption>
+          </figure>
+          EOS
+        end
+      end
+
+      class Tag < Liquid::Tag
+        include ImageCaptionFunctions
+        @img = nil
+        @title = nil
+        @class = ''
+        @width = ''
+        @height = ''
+
+        def initialize(tag_name, markup, tokens)
+          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?\s+\d+%?)?(?<title>\s+.+)?} =~ markup
+            @class = classname || 'center'
+            @img = "#{protocol}#{url}"
+            @title = title.strip if title
+            parse_sizes(sizes)
+            parse_title(@title)
+          end
+          super
+        end
+
+        def render(context)
+          super
+          @caption = @title
+          if @img && @width[-1] == '%' # Relative width, so width goes on outer span
+            relative_sized_figure
+          elsif @img # Absolute width, so width goes on the img tag and text span gets sytle-width:@width-15;
+            absolute_sized_figure
+          else
+            'Error processing input, expected syntax: {% imgcap [class name(s)] /url/to/image [width height] [title [alt]] %}'
+          end
+        end
       end
 
       class Block < Liquid::Block
+        include ImageCaptionFunctions
         @img = nil
         @title = nil
         @class = ''
@@ -99,51 +116,11 @@ module Octopress
           converter = site.find_converter_instance(Jekyll::Converters::Markdown)
           @caption = converter.convert(super).lstrip.rstrip
           if @img && @width[-1] == '%' # Relative width, so width goes on outer span
-            <<-EOS.gsub(/^ {12}/, '') # gsubm is to pretty up source by indenting
-            <figure class='caption-wrapper #{@class.rstrip}' style='width:#{@width};'>
-              <a class='image-popup' href='#{@img}'>
-                <img class='caption' src='#{@img}' width='100%' height='100%' title='#{@title}' alt='#{@alt}'>
-              </a>
-              <figurecaption class='caption-text'>
-            #{@caption}
-              </figurecaption>
-            </figure>
-            EOS
+            relative_sized_figure
           elsif @img # Absolute width, so width goes on the img tag and text span gets sytle-width:@width-15;
-            <<-EOS.gsub(/^ {12}/, '') # gsubm is to pretty up source by indenting
-            <figure class='caption-wrapper #{@class.rstrip}'>
-              <a class='image-popup' href='#{@img}'>
-                <img class='caption' src='#{@img}' width='#{@width}px' height='#{@height}px' title='#{@title}' alt='#{@alt}'>
-              </a>
-              <figurecaption class='caption-text' style='width:#{@width.to_i - 10}px;'>
-            #{@caption}
-              </figurecaption>
-            </figure>
-            EOS
+            absolute_sized_figure
           else
             'Error processing input, expected syntax: {% imgcaption [class name(s)] /url/to/image [width height] [title [alt]] %} Caption Text {% endimgcaption %}'
-          end
-        end
-
-        def parse_sizes(raw_size)
-          if /\s*(?<w>\d+%?)\s+(?<h>\d+%?)/ =~ raw_size
-            @width = w
-            @height = h
-          elsif @class.rstrip == 'right' || @class.rstrip == 'left'
-            @width = '33%'
-          else
-            @width = '100%'
-          end
-        end
-
-        def parse_title(raw_title)
-          if /(?:"|')(?<title>[^"']+)?(?:"|')\s+(?:"|')(?<alt>[^"']+)?(?:"|')/ =~ raw_title
-            @title  = title
-            @alt    = alt
-          else
-            /(?:"|')(?<titlealt>[^"']+)?(?:"|')/ =~ raw_title
-            @title = titlealt
-            @alt = titlealt
           end
         end
       end
