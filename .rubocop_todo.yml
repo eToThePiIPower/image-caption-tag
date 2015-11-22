@@ -21,8 +21,8 @@ Metrics/LineLength:
 
 # Offense count: 4
 # Configuration parameters: CountComments.
-# Metrics/MethodLength:
-#   Max: 20
+Metrics/MethodLength:
+  Max: 22
 
 # Offense count: 2
 # Metrics/PerceivedComplexity:
@@ -49,9 +49,9 @@ Style/AsciiComments:
 
 # Offense count: 1
 # Configuration parameters: Exclude.
-# Style/FileName:
-#   Exclude:
-#     - 'lib/octopress-image-caption-tag.rb'
+Style/FileName:
+  Exclude:
+    - 'lib/octopress-image-caption-tag.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
