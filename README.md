@@ -41,7 +41,25 @@ The output for either version is the same, and of the form:
 This gem does not include stylesheets for the image captions. [Robert
 Anderson's][zerosharp] original blog post includes a nice example of how to
 style them.
-
+```scss
+.caption-wrapper {
+  @extend .flex-content;
+  @extend .basic-alignment;
+  @include shadow-box;
+  &.caption {
+    @include shadow-box(0px, 0px, 0px);
+  }
+  display: inline-block;
+  margin-bottom: 10px;
+  .caption-text {
+    background: #fff;
+    text-align: center;
+    font-size: .8em;
+    color: #666;
+    display: block;
+  }
+}
+```
 
 [md]: https://daringfireball.net/projects/markdown/
 [img]: https://github.com/octopress/image-tag
