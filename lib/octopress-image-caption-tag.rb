@@ -35,11 +35,11 @@ module Octopress
 
         def absolute_sized_figure
           <<-EOS.gsub(/^ {10}/, '') # gsubm is to pretty up source by indenting
-          <figure class='caption-wrapper #{@class.rstrip}'>
+          <figure class='image-caption image-caption-absolute #{@class.rstrip}'>
             <a class='image-popup' href='#{@img}'>
               <img class='caption' src='#{@img}' width='#{@width}' height='#{@height}' title='#{@title}' alt='#{@alt}'>
             </a>
-            <figcaption class='caption-text' style='width:#{@width.to_i - 10}px;'>
+            <figcaption class='caption-text'>
               #{@caption}
             </figcaption>
           </figure>
@@ -48,7 +48,7 @@ module Octopress
 
         def relative_sized_figure
           <<-EOS.gsub(/^ {10}/, '') # gsubm is to pretty up source by indenting
-          <figure class='caption-wrapper #{@class.rstrip}' style='width:#{@width};'>
+          <figure class='image-caption #{@class.rstrip}'>
             <a class='image-popup' href='#{@img}'>
               <img class='caption' src='#{@img}' width='100%' height='100%' title='#{@title}' alt='#{@alt}'>
             </a>
