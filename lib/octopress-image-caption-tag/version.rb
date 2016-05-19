@@ -1,7 +1,7 @@
 module Octopress
   module Tags
     module ImageCaptionTag
-      VERSION = '0.0.7'
+      VERSION = '0.9.0'
     end
   end
 end
