@@ -12,7 +12,7 @@ module Octopress
     module ImageCaptionTag
       module ImageCaptionFunctions
         def parse_sizes(raw_size)
-          if /\s*(?<w>\d+%?)\s+(?<h>\d+%?)/ =~ raw_size
+          if /\s*(?<w>\d+%?(em)?)\s+(?<h>\d+%?(em)?)/ =~ raw_size
             @width = w
             @height = h
           elsif @class.rstrip == 'right' || @class.rstrip == 'left'
@@ -46,6 +46,19 @@ module Octopress
           EOS
         end
 
+        def em_sized_figure
+          <<-EOS.gsub(/^ {10}/, '') # gsubm is to pretty up source by indenting
+          <figure class='image-caption image-caption-absolute #{@class.rstrip}'>
+            <a class='image-popup' href='#{@img}'>
+              <img class='caption' src='#{@img}' style='width:#{@width};height:#{@height};' title='#{@title}' alt='#{@alt}'>
+            </a>
+            <figcaption class='caption-text'>
+              #{@caption}
+            </figcaption>
+          </figure>
+          EOS
+        end
+
         def relative_sized_figure
           <<-EOS.gsub(/^ {10}/, '') # gsubm is to pretty up source by indenting
           <figure class='image-caption #{@class.rstrip}'>
@@ -69,7 +82,7 @@ module Octopress
         @height = ''
 
         def initialize(tag_name, markup, tokens)
-          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?\s+\d+%?)?(?<title>\s+.+)?} =~ markup
+          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?(em)?\s+\d+%?(em)?)?(?<title>\s+.+)?} =~ markup
             @class = classname || 'center'
             @img = "#{protocol}#{url}"
             @title = title.strip if title
@@ -84,6 +97,8 @@ module Octopress
           @caption = @title
           if @img && @width[-1] == '%' # Relative width, so width goes on outer span
             relative_sized_figure
+          elsif @img && @width[-2..-1] == 'em' # Absolute size in ems
+            em_sized_figure
           elsif @img # Absolute width, so width goes on the img tag and text span gets sytle-width:@width-15;
             absolute_sized_figure
           else
@@ -101,7 +116,7 @@ module Octopress
         @height = ''
 
         def initialize(tag_name, markup, tokens)
-          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?\s+\d+%?)?(?<title>\s+.+)?} =~ markup
+          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?(em)?\s+\d+%?(em)?)?(?<title>\s+.+)?} =~ markup
             @class = classname || 'center'
             @img = "#{protocol}#{url}"
             @title = title.strip if title
@@ -117,6 +132,8 @@ module Octopress
           @caption = converter.convert(super).lstrip.rstrip
           if @img && @width[-1] == '%' # Relative width, so width goes on outer span
             relative_sized_figure
+          elsif @img && @width[-2..-1] == 'em'
+            em_sized_figure
           elsif @img # Absolute width, so width goes on the img tag and text span gets sytle-width:@width-15;
             absolute_sized_figure
           else
