@@ -1,4 +1,6 @@
 # Changelog
+### 0.9.1 (2016-05-19)
+- Fix for absolute width with fractional ems
 ### 0.9.0 (2016-05-18)
 - Add support for absolute sizing in ems
 - Confident enough to consider this a pre-release rather than pre-alpha

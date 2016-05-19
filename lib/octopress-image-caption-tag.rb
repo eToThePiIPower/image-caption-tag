@@ -12,7 +12,7 @@ module Octopress
     module ImageCaptionTag
       module ImageCaptionFunctions
         def parse_sizes(raw_size)
-          if /\s*(?<w>\d+%?(em)?)\s+(?<h>\d+%?(em)?)/ =~ raw_size
+          if /\s*(?<w>\d+(\.\d+)?%?(em)?)\s+(?<h>\d+(\.\d+)?%?(em)?)/ =~ raw_size
             @width = w
             @height = h
           elsif @class.rstrip == 'right' || @class.rstrip == 'left'
@@ -82,7 +82,7 @@ module Octopress
         @height = ''
 
         def initialize(tag_name, markup, tokens)
-          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?(em)?\s+\d+%?(em)?)?(?<title>\s+.+)?} =~ markup
+          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+(\.\d+)?%?(em)?\s+\d+(\.\d+)?%?(em)?)?(?<title>\s+.+)?} =~ markup
             @class = classname || 'center'
             @img = "#{protocol}#{url}"
             @title = title.strip if title
@@ -116,7 +116,7 @@ module Octopress
         @height = ''
 
         def initialize(tag_name, markup, tokens)
-          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+%?(em)?\s+\d+%?(em)?)?(?<title>\s+.+)?} =~ markup
+          if %r{(?<classname>\S.*\s+)?(?<protocol>https?://|/)(?<url>\S+)(?<sizes>\s+\d+(\.\d+)?%?(em)?\s+\d+(\.\d+)?%?(em)?)?(?<title>\s+.+)?} =~ markup
             @class = classname || 'center'
             @img = "#{protocol}#{url}"
             @title = title.strip if title
